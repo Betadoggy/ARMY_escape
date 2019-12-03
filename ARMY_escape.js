@@ -2,6 +2,13 @@ Function.prototype.member = function(name, value){
 	this.prototype[name] = value
 }
 
+
+function sleep (delay) {
+	var start = new Date().getTime();
+	while (new Date().getTime() < start + delay);
+ }
+
+
 //////// Game Definition
 function Game(){}
 Game.start = function(room, welcome){
@@ -189,16 +196,235 @@ Item.member('isHanded', function(){
 
 playSound("frontline.wav") // 멸공의 횃불 재생
 
+room0 = new Room('room0', 'room0.png')
 room1 = new Room('room1', 'room1.png')		// 변수명과 이름이 일치해야 한다.
 room2 = new Room('room2', 'room2.png')		
 room3 = new Room('room3', 'room3.png')		
 room4 = new Room('room4', 'room4.png')		
 room5 = new Room('room5', 'room5.png')
-//
 room6 = new Room('room6', 'room6.jpg')
 room7 = new Room('room7', 'room7.jpg')
 room8 = new Room('room8', 'room8.jpg')
 room9 = new Room('room9', 'room9.jpg')
+roompx = new Room('roompx','roompx.png')
+
+
+//
+
+
+//----------------------------------room0------------------------------------------//
+
+room0.arrow1 = new Object(room0, 'arrow1','arrow1.png')
+room0.arrow1.resize(150)
+room0.arrow1.locate(240,470)
+
+room0.arrow2 = new Object(room0, 'arrow2','arrow2.png')
+room0.arrow2.resize(150)
+room0.arrow2.locate(460,470)
+
+room0.arrow2.onClick = function(){
+	this.connectedTo = room6
+	Game.move(this.connectedTo)
+}
+
+room0.arrow3 = new Object(room0, 'arrow3','arrow3.png')
+room0.arrow3.resize(150)
+room0.arrow3.locate(780,470)
+
+room0.arrow3.onClick = function(){
+	this.connectedTo = roompx
+	Game.move(this.connectedTo)
+	roompx.cookedsunel.hide()
+	roompx.cookedgome.hide()
+	roompx.cookedcombination.hide()
+	roompx.cookedcrispy.hide()
+}
+
+room0.arrow4 = new Object(room0, 'arrow4','arrow4.png')
+room0.arrow4.resize(150)
+room0.arrow4.locate(1020,470)
+
+room0.arrow4.onClick = function(){
+	this.connectedTo = room8
+	Game.move(this.connectedTo)
+}
+
+room0.jogyo = new Object(room0, 'jogyo', 'jogyo.png')
+room0.jogyo.resize(250)
+room0.jogyo.locate(640,300)
+
+room0.jogyo.onClick = function(){
+	if (!roompx.chickenpizza.isHanded()){
+		printMessage("내가 제일 좋아하는건 슈넬치킨과 콤비네이션 피자다")
+	}
+	else 
+	{
+		printMessage("냠냠.")
+		room0.arrow3.hide()
+	}
+}
+//----------------------------------px------------------------------------------//
+//sunelcooked = 0
+//combinationcooked = 0
+//gomecooked = 0
+//crispycooked = 0
+//soundcheck = 0
+cookingcomplete = 0
+//cookedgome.hide()
+//cookedcombination.hide()
+
+//cookedcrispy.hide()
+
+
+
+roompx.microwave = new Object(roompx, 'microwave', 'microwave(closed).png')
+roompx.microwave.resize(280)
+roompx.microwave.locate(140,180)
+roompx.redbutton = new Object(roompx, 'redbutton', 'redbutton.png')
+roompx.redbutton.resize(30)
+roompx.redbutton.locate(267,220)
+
+roompx.microwave.close()
+roompx.microwave.onOpen = function() { 
+	roompx.microwave.setSprite('microwave(open).png') 
+	roompx.redbutton.move(10, 0)
+}
+
+roompx.microwave.onClose = function() { 
+	roompx.microwave.setSprite('microwave(closed).png') 
+	roompx.redbutton.move(-10, 0)
+}
+
+roompx.cookedsunel = new Item(roompx, 'cookedsunel','cookedsunel.png')
+roompx.cookedsunel.resize(70)
+roompx.cookedsunel.locate(210,210)
+
+roompx.cookedcombination = new Item(roompx, 'cookedcombination','cookedcombination.png')
+roompx.cookedcombination.resize(70)
+roompx.cookedcombination.locate(210,210)
+
+roompx.cookedcrispy = new Item(roompx, 'cookedcrispy','cookedcrispy.png')
+roompx.cookedcrispy.resize(70)
+roompx.cookedcrispy.locate(210,210)
+
+roompx.cookedgome = new Item(roompx, 'cookedgome','cookedgome.png')
+roompx.cookedgome.resize(70)
+roompx.cookedgome.locate(210,210)
+
+roompx.chickenpizza = new Object(roompx, 'chickenpizza', 'chickenpizza.png')
+roompx.chickenpizza.resize(0)
+roompx.cookedcrispy.locate(210,210)
+
+roompx.microwave.onClick = function(){
+	if (roompx.microwave.isOpened() && (roompx.sunel1.isHanded() || roompx.crispy1.isHanded() || roompx.combination1.isHanded() || roompx.gome1.isHanded()) ){
+		roompx.microwave.close()
+		roompx.microwave.setSprite('microwave(closed).png')
+		printMessage("5초의 조리시간이 필요합니다! 버튼을 누르세요")
+	}
+	else if (roompx.microwave.isOpened() && !(roompx.sunel1.isHanded() || roompx.crispy1.isHanded() || roompx.combination1.isHanded() || roompx.gome1.isHanded())){
+		roompx.microwave.close()
+		roompx.microwave.setSprite('microwave(closed).png')
+	}
+	else if (roompx.microwave.isClosed() && cookingcomplete == 0){
+		roompx.microwave.open()
+	}
+	else if (roompx.microwave.isClosed() && cookingcomplete == 1){
+		roompx.microwave.open()
+		if (roompx.sunel1.isHanded()){
+			roompx.cookedsunel.show()
+			cookingcomplete = 0
+		}
+		else if(roompx.crispy1.isHanded()){
+			roompx.cookedcrispy.show()
+			cookingcomplete = 0
+		}
+		else if (roompx.gome1.isHanded()){
+			roompx.cookedgome.show()
+			cookingcomplete = 0
+		}
+		else if(roompx.combination1.isHanded()){
+			roompx.cookedcombination.show()
+			cookingcomplete = 0
+		}
+	}
+	else {
+		roompx.microwave.open()
+	}
+}
+
+roompx.redbutton.onClick = function(){
+	if (roompx.microwave.isClosed() && (roompx.sunel1.isHanded() || roompx.crispy1.isHanded() || roompx.combination1.isHanded() || roompx.gome1.isHanded()) )
+	{
+		sleep(5000)
+		cookingcomplete = 1
+		printMessage("조리가 완료되었습니다")
+	}
+	else
+	{
+		printMessage("음식물을 넣어주세요")
+	}
+
+}
+
+game.makeCombination(roompx.cookedsunel.this(), roompx.cookedcombination.this(), roompx.chickenpizza.this())
+
+roompx.back = new Door (roompx, 'back', 'back.png', 'back.png', room0)
+roompx.back.resize(100)
+roompx.back.locate(200, 600)
+
+
+roompx.sunel1 = new Item(roompx, 'sunel1','sunel.png')
+roompx.sunel1.resize(110)
+roompx.sunel1.locate(500,320)
+
+roompx.sunel2 = new Object(roompx, 'sunel2','sunel.png')
+roompx.sunel2.resize(110)
+roompx.sunel2.locate(620,330)
+
+roompx.sunel3 = new Object(roompx, 'sunel3','sunel.png')
+roompx.sunel3.resize(110)
+roompx.sunel3.locate(740,340)
+
+roompx.gome1 = new Item(roompx, 'gome1','gome.png')
+roompx.gome1.resize(120)
+roompx.gome1.locate(860,195)
+
+roompx.gome2 = new Object(roompx, 'gome2','gome.png')
+roompx.gome2.resize(120)
+roompx.gome2.locate(980,200)
+
+roompx.gome3 = new Object(roompx, 'gome3','gome.png')
+roompx.gome3.resize(120)
+roompx.gome3.locate(1100,205)
+
+roompx.combination1 = new Item(roompx, 'combination1','combination.png')
+roompx.combination1.resize(110)
+roompx.combination1.locate(500,200)
+
+roompx.combination2 = new Object(roompx, 'combination2','combination.png')
+roompx.combination2.resize(110)
+roompx.combination2.locate(620,202)
+
+roompx.combination3 = new Object(roompx, 'combination3','combination.png')
+roompx.combination3.resize(110)
+roompx.combination3.locate(740,205)
+
+roompx.crispy1 = new Item(roompx, 'crispy1','crispy.png')
+roompx.crispy1.resize(105)
+roompx.crispy1.locate(860,343)
+
+roompx.crispy2 = new Object(roompx, 'crispy2','crispy.png')
+roompx.crispy2.resize(110)
+roompx.crispy2.locate(980,350)
+
+roompx.crispy3 = new Object(roompx, 'crispy3','crispy.png')
+roompx.crispy3.resize(110)
+roompx.crispy3.locate(1100,360)
+
+//
+
+
+//
 
 room6.target_100 = new Object(room6, 'target_100', 'target.png')
 room6.target_100.resize(40)
@@ -356,7 +582,7 @@ room7.bullet = new Object(room7, 'bullet', 'bullet.png')
 room7.bullet.resize(50)
 room7.bullet.locate(Math.floor(Math.random() * 800) + 200, 50)
 
-room7.back = new Door (room7, 'back', 'back.png', 'back.png', room8)
+room7.back = new Door (room7, 'back', 'back.png', 'back.png', room0)
 room7.back.resize(100)
 room7.back.locate(200, 600)
 room7.back.hide()
@@ -365,6 +591,7 @@ room7.bullet.onClick = function(){
 	printMessage("잃어버린 탄피를 찾았다. 화살표를 눌러 다시 돌아가자.")
 	room7.back.show()
 	room7.bullet.hide()
+	room0.arrow2.hide()
 }
 
 room8.suit = new Item(room8, 'suit', 'suit.png')
@@ -389,6 +616,10 @@ room8.gate.onClick = function(){
 	else
 		Game.move(this.connectedTo)
 }
+room9.back = new Door (room9, 'back', 'back.png', 'back.png', room0)
+room9.back.resize(100)
+room9.back.locate(200, 600)
+room9.back.hide()
 
 room9.smoke = new Object(room9, 'smoke', 'smoke.png')
 room9.smoke.resize(1700)
@@ -398,7 +629,9 @@ room9.smoke.onClick = function()
 	if(room9.gas_mask_real.isHanded())
 	{
 		room9.smoke.hide()
-		printMessage("이제 시야가 보이는 것 같다.")
+		printMessage("이제 시야가 보이는 것 같다. 빨리 나가자.")
+		room9.back.show()
+		room0.arrow4.hide()
 	}
 	else
 	{
@@ -869,4 +1102,4 @@ room3.lock1.resize(20)
 room3.lock1.locate(920, 250)
 */
 
-Game.start(room6, '전역증을 잃어버렸다! 전역증을 찾아 군대를 탈출해라!')
+Game.start(room0, '전역증을 잃어버렸다! 전역증을 찾아 군대를 탈출해라!')
