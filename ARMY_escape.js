@@ -200,7 +200,7 @@ room0 = new Room('room0', 'room0.png')
 room1 = new Room('room1', 'room1.png')		// 변수명과 이름이 일치해야 한다.
 room2 = new Room('room2', 'room2.png')		
 room3 = new Room('room3', 'room3.png')		
-room4 = new Room('room4', 'room4.png')		
+room4 = new Room('room4', 'room4.jpg')		
 room5 = new Room('room5', 'room5.png')
 room6 = new Room('room6', 'room6.jpg')
 room7 = new Room('room7', 'room7.jpg')
@@ -214,9 +214,17 @@ roompx = new Room('roompx','roompx.png')
 
 //----------------------------------room0------------------------------------------//
 
+checkmission = 0
+
 room0.arrow1 = new Object(room0, 'arrow1','arrow1.png')
 room0.arrow1.resize(150)
 room0.arrow1.locate(240,470)
+
+room0.arrow1.onClick = function(){
+	this.connectedTo = room2
+	playSound("woosh.wav")
+	Game.move(this.connectedTo)
+}
 
 room0.arrow2 = new Object(room0, 'arrow2','arrow2.png')
 room0.arrow2.resize(150)
@@ -224,6 +232,7 @@ room0.arrow2.locate(460,470)
 
 room0.arrow2.onClick = function(){
 	this.connectedTo = room6
+	playSound("woosh.wav")
 	Game.move(this.connectedTo)
 }
 
@@ -233,6 +242,7 @@ room0.arrow3.locate(780,470)
 
 room0.arrow3.onClick = function(){
 	this.connectedTo = roompx
+	playSound("woosh.wav")
 	Game.move(this.connectedTo)
 	roompx.cookedsunel.hide()
 	roompx.cookedgome.hide()
@@ -246,6 +256,7 @@ room0.arrow4.locate(1020,470)
 
 room0.arrow4.onClick = function(){
 	this.connectedTo = room8
+	playSound("woosh.wav")
 	Game.move(this.connectedTo)
 }
 
@@ -254,13 +265,20 @@ room0.jogyo.resize(250)
 room0.jogyo.locate(640,300)
 
 room0.jogyo.onClick = function(){
-	if (!roompx.chickenpizza.isHanded()){
-		printMessage("내가 제일 좋아하는건 슈넬치킨과 콤비네이션 피자다")
+	if(checkmission == 4)
+	{
+		printMessage("수고했다. 제군은 이제 사회의 품으로 가도 좋다!")
+		playSound("frontline.wav")
+		Game.end()
+	}
+	else if (!roompx.chickenpizza.isHanded()){
+		printMessage("네 가지 장소에서 임무를 완수해야 전역할 수 있다. 참고로 난 슈넬치킨과 콤비네이션 피자를 좋아한다.")
 	}
 	else 
 	{
 		printMessage("냠냠.")
 		room0.arrow3.hide()
+		checkmission++
 	}
 }
 //----------------------------------px------------------------------------------//
@@ -355,6 +373,7 @@ roompx.microwave.onClick = function(){
 roompx.redbutton.onClick = function(){
 	if (roompx.microwave.isClosed() && (roompx.sunel1.isHanded() || roompx.crispy1.isHanded() || roompx.combination1.isHanded() || roompx.gome1.isHanded()) )
 	{
+		playSound("microwave.wav")
 		sleep(5000)
 		cookingcomplete = 1
 		printMessage("조리가 완료되었습니다")
@@ -592,6 +611,7 @@ room7.bullet.onClick = function(){
 	room7.back.show()
 	room7.bullet.hide()
 	room0.arrow2.hide()
+	checkmission++
 }
 
 room8.suit = new Item(room8, 'suit', 'suit.png')
@@ -611,10 +631,12 @@ room8.gate.onClick = function(){
 	else if (room8.suit.isHanded() && !this.id.isLocked() && this.id.isClosed())
 	{
 		printMessage("활 짝!")
+		playSound("door_open.wav")
 		this.id.open()
 	}
 	else
 		Game.move(this.connectedTo)
+		playSound("Smoke.wav")
 }
 room9.back = new Door (room9, 'back', 'back.png', 'back.png', room0)
 room9.back.resize(100)
@@ -629,9 +651,10 @@ room9.smoke.onClick = function()
 	if(room9.gas_mask_real.isHanded())
 	{
 		room9.smoke.hide()
-		printMessage("이제 시야가 보이는 것 같다. 빨리 나가자.")
+		printMessage("이제 시야가 보이는 것 같다. 화살표를 눌러 빨리 나가자.")
 		room9.back.show()
 		room0.arrow4.hide()
+		checkmission++
 	}
 	else
 	{
@@ -907,32 +930,29 @@ room4.arrow2.onClick = function(){
 }
 
 // 천국으로 가는 문
-room4.heaven = new Door(room4, 'heaven', 'heaven.png', 'heaven.png')
-room4.heaven.resize(685)
-room4.heaven.locate(623, 307)
+room4.door = new Door(room4, 'door', 'room4_door_closed.jpg', 'room4_door_opened.jpg', room0)
+room4.door.resize(685)
+room4.door.locate(660, 335)
 
-// 전역증
-room3.retire = new Item(room3, 'retire', 'retire.jpg')
+// 공무원증
+room3.retire = new Item(room3, 'retire', 'retire.png')
 room3.retire.resize(50)
 room3.retire.locate(445, 600)
 room3.retire.hide()
 
-// 종결조건
-room4.heaven.onClick = function(){
+// 조교가 나가는 곳으로 가는 조건
+room4.door.onClick = function(){
 	if (!room3.retire.isHanded()){
-		printMessage("??? : 전역증을 가져오너라...")
+		printMessage("??? : 공무원증을 가져오너라...")
 	}
 	else if (room3.retire.isHanded() && !this.id.isLocked() && this.id.isClosed()){
-		printMessage("??? : 전역증을 가져왔군... 클릭을 한번 더해서 밖으로 나가거라")
+		printMessage("클릭을 한번 더해 조교가 있는 곳으로 나가자")
 		this.id.open()
 	}
-	else if (this.id.isOpened()){
-		if (this.connectedTo !== undefined){
-			Game.move(this.connectedTo)
-		}
-		else {
-			Game.end()
-		}
+	else{
+		Game.move(this.connectedTo)
+		room0.arrow1.hide()
+		checkmission++
 	}
 }
 
